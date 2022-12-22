@@ -25,6 +25,13 @@ class GuidebookController extends Controller
 		);
 	}
 
+	public function getAllByUser()
+	{
+		return GuidebookResource::collection(
+			Guidebook::where('user_id', Auth::user()->id)->get()
+		);
+	}
+
 	/**
 	 * Show the form for creating a new resource.
 	 *
@@ -63,6 +70,9 @@ class GuidebookController extends Controller
 	public function show($id)
 	{
 		$guidebook = Guidebook::whereId($id)->first();
+		if ($guidebook == null) {
+			return $this->error('', 'guidebook does not exist', 404);
+		}
 
 		return new GuidebookResource($guidebook);
 	}
@@ -82,7 +92,7 @@ class GuidebookController extends Controller
 	 * Update the specified resource in storage.
 	 *
 	 * @param  \Illuminate\Http\Request  $request
-	 * @param  int  $id
+	 * @param  Guidebook  $guidebook
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(UpdateGuidebookRequest $request, Guidebook $guidebook)
@@ -101,7 +111,7 @@ class GuidebookController extends Controller
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param  int  $id
+	 * @param  Guidebook  $guidebook
 	 * @return \Illuminate\Http\Response
 	 */
 	public function destroy(Guidebook $guidebook)

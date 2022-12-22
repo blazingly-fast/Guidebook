@@ -6,22 +6,17 @@ use App\Traits\UUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Guidebook extends Model
+class Place extends Model
 {
 	use UUID;
 	use HasFactory;
 
 	protected $fillable = [
-		'user_id', 'title', 'description'
+		'guidebook_id', 'title', 'description'
 	];
 
-	public function user()
+	public function guidebook()
 	{
-		return $this->belongsTo(User::class);
-	}
-
-	public function places()
-	{
-		return $this->hasMany(Place::class);
+		return $this->belongsTo(Guidebook::class);
 	}
 }
