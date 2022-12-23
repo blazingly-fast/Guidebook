@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateGuidebookRequest;
 use App\Http\Resources\GuidebookResource;
 use App\Models\Guidebook;
 use App\Traits\HttpResponses;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class GuidebookController extends Controller

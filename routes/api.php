@@ -5,6 +5,7 @@ use App\Http\Controllers\GuidebookController;
 use App\Http\Controllers\PlacesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,14 +22,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 	return $request->user();
 });
 
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+	$request->fulfill();
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.reset');
+Route::get('/verify-email/{id}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+Route::post('/resend-verification', [AuthController::class], 'resendVerification')->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
 
 // Protected routes
-Route::group(['middleware' => ['auth:sanctum']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'verified']], function () {
 
 	Route::post('/logout', [AuthController::class, 'logout']);
 

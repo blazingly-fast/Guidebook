@@ -6,6 +6,7 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,8 @@ class AuthController extends Controller
 			'password' => Hash::make($request->password),
 		]);
 
+		event(new Registered($user));
+
 		return $this->success([
 			'user' => $user,
 			'token' => $user->createToken('API Token of ' . $user->name)->plainTextToken
@@ -65,7 +68,7 @@ class AuthController extends Controller
 			$response = Password::sendResetLink(['email' => $request->email]);
 
 			if ($response == Password::RESET_LINK_SENT) {
-				return $this->success('Reset linke sent successfully');
+				return $this->success('Reset link sent successfully. Check your email inbox');
 			} else {
 				return	$this->error('', 'something went wrongzaaa', 500);
 			}
@@ -89,9 +92,27 @@ class AuthController extends Controller
 			$user->password = Hash::make($request->password);
 			$user->save();
 
-			return $this->success($user, 'Password updated successfully', 201);
+			return $this->success($user, 'Password updated successfully', 200);
 		} else {
 			$this->error('', 'email is not registered', '404');
+		}
+	}
+
+	public function verifyEmail($id)
+	{
+		$user = User::findOrFail($id);
+
+		$user->markEmailAsVerified();
+
+		return $this->success('user verified');
+	}
+
+	public function resendVerification(Request $request)
+	{
+		if ($request->user()->sendEmailVerificationNotification()) {
+			return $this->success('Verification link sent');
+		} else {
+			return $this->error('', 'unable to send verification link', 500);
 		}
 	}
 }
