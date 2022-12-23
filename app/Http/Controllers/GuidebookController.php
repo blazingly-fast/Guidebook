@@ -71,7 +71,7 @@ class GuidebookController extends Controller
 	{
 		$guidebook = Guidebook::whereId($id)->first();
 		if ($guidebook == null) {
-			return $this->error('', 'guidebook does not exist', 404);
+			return $this->error('', 'guidebook does not exist', 403);
 		}
 
 		return new GuidebookResource($guidebook);

@@ -6,9 +6,10 @@ use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -52,5 +53,45 @@ class AuthController extends Controller
 	{
 		Auth::user()->currentAccessToken()->delete();
 		return response()->json('You have succesfully been logged out and your token has been removed');
+	}
+
+	public function ForgotPassword(Request $request)
+	{
+		$request->validate(['email' => 'required|email']);
+
+		$user = User::where('email', $request->email)->first();
+
+		if ($user) {
+			$response = Password::sendResetLink(['email' => $request->email]);
+
+			if ($response == Password::RESET_LINK_SENT) {
+				return $this->success('Reset linke sent successfully');
+			} else {
+				return	$this->error('', 'something went wrongzaaa', 500);
+			}
+		} else {
+			return $this->error('', 'user not found', 404);
+		}
+	}
+
+	public function resetPassword(Request $request)
+	{
+		$request->validate([
+			'email' => 'required|email',
+			'password' => 'required|min:6|confirmed',
+			'token' => 'required',
+		]);
+		// get the user based on the email address
+		$user = User::where('email', $request->email)->first();
+
+		if ($user) {
+			// reset the user's password
+			$user->password = Hash::make($request->password);
+			$user->save();
+
+			return $this->success($user, 'Password updated successfully', 201);
+		} else {
+			$this->error('', 'email is not registered', '404');
+		}
 	}
 }
