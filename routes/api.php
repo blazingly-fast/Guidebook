@@ -19,38 +19,37 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-	return $request->user();
+  return $request->user();
 });
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-	$request->fulfill();
+  $request->fulfill();
 })->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/resend-verification', [AuthController::class], 'resendVerification')->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.reset');
-Route::get('/verify-email/{id}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
-Route::post('/resend-verification', [AuthController::class], 'resendVerification')->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-
 
 // Protected routes
 Route::group(['middleware' => ['auth:sanctum', 'verified']], function () {
 
-	Route::post('/logout', [AuthController::class, 'logout']);
+  Route::post('/logout', [AuthController::class, 'logout']);
 
-	Route::get('/guidebooks', [GuidebookController::class, 'index']);
-	Route::get('/guidebooks-by-user', [GuidebookController::class, 'getAllByUser']);
-	Route::get('/guidebooks/{id}', [GuidebookController::class, 'show']);
-	Route::post('/guidebooks', [GuidebookController::class, 'store']);
-	Route::put('/guidebooks/{guidebook}', [GuidebookController::class, 'update']);
-	Route::delete('/guidebooks/{guidebook}', [GuidebookController::class, 'destroy']);
+  Route::get('/guidebooks-by-user', [GuidebookController::class, 'getAllByUser']);
+  Route::get('/guidebooks', [GuidebookController::class, 'index']);
+  Route::get('/guidebooks/{id}', [GuidebookController::class, 'show']);
+  Route::post('/guidebooks', [GuidebookController::class, 'store']);
+  Route::put('/guidebooks/{guidebook}', [GuidebookController::class, 'update']);
+  Route::delete('/guidebooks/{guidebook}', [GuidebookController::class, 'destroy']);
 
-	// Places routes
-	Route::get('/guidebooks/places/{guidebook}', [PlacesController::class, 'index']);
-	Route::get('/guidebooks/place/{place}', [PlacesController::class, 'show']);
-	Route::post('/guidebooks/place', [PlacesController::class, 'store']);
-	Route::put('/guidebooks/place/{place}', [PlacesController::class, 'update']);
-	Route::delete('/guidebooks/place/{place}', [PlacesController::class, 'destroy']);
+  // Places routes
+  Route::get('/guidebooks/places/{guidebook}', [PlacesController::class, 'index']);
+  Route::get('/guidebooks/place/{place}', [PlacesController::class, 'show']);
+  Route::post('/guidebooks/place', [PlacesController::class, 'store']);
+  Route::put('/guidebooks/place/{place}', [PlacesController::class, 'update']);
+  Route::delete('/guidebooks/place/{place}', [PlacesController::class, 'destroy']);
 });
