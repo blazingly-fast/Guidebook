@@ -9,6 +9,7 @@ use App\Models\Guidebook;
 use App\Models\Scopes\LoggedUserScope;
 use App\Traits\HttpResponses;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GuidebookController extends Controller
 {
@@ -98,6 +99,7 @@ class GuidebookController extends Controller
   public function update(UpdateGuidebookRequest $request, Guidebook $guidebook)
   {
     if (Auth::user()->id !== $guidebook->user_id) {
+
       return $this->error('', 'You are not authorized to make this request', 403);
     }
 
@@ -114,9 +116,30 @@ class GuidebookController extends Controller
    * @param  Guidebook  $guidebook
    * @return \Illuminate\Http\Response
    */
-  public function destroy(Guidebook $guidebook)
+  public function destroy($id)
   {
-    return $this->isNotAuthorized($guidebook) ? $this->isNotAuthorized($guidebook) : $guidebook->delete();
+      return $id;
+//    return $this->isNotAuthorized($guidebook) ? $this->isNotAuthorized($guidebook) : $guidebook->delete();
+  }
+
+  public function publish(Guidebook $guidebook)
+  {
+    $this->isNotAuthorized($guidebook);
+    $guidebook->update(['is_published' => !$guidebook->is_published]);
+
+     return $this->success("", "Guidebook " . $guidebook->id . " published successfully!");
+  }
+
+  public function favorite($id) {
+
+      $favorite = DB::table('user_guidebook_pivot')->insert([
+          'user_id' => Auth::user()->id,
+          'guidebook_id' => $id,
+          'created_at' => date("Y-m-d H:i:s", strtotime('now'))
+      ]);
+
+      return $this->success($favorite, 'guidebook added to favorites', 201);
+
   }
 
   private function isNotAuthorized($guidebook)

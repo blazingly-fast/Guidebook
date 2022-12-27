@@ -5,6 +5,7 @@ use App\Http\Controllers\GuidebookController;
 use App\Http\Controllers\PlacesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
@@ -19,11 +20,11 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-  return $request->user();
+    return $request->user();
 });
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-  $request->fulfill();
+    $request->fulfill();
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 Route::post('/resend-verification', [AuthController::class], 'resendVerification')->middleware(['auth', 'throttle:6,1'])->name('verification.send');
@@ -37,19 +38,22 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name
 // Protected routes
 Route::group(['middleware' => ['auth:sanctum', 'verified']], function () {
 
-  Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-  Route::get('/guidebooks-by-user', [GuidebookController::class, 'getAllByUser']);
-  Route::get('/guidebooks', [GuidebookController::class, 'index']);
-  Route::get('/guidebooks/{id}', [GuidebookController::class, 'show']);
-  Route::post('/guidebooks', [GuidebookController::class, 'store']);
-  Route::put('/guidebooks/{guidebook}', [GuidebookController::class, 'update']);
-  Route::delete('/guidebooks/{guidebook}', [GuidebookController::class, 'destroy']);
+    Route::get('/guidebooks-by-user', [GuidebookController::class, 'getAllByUser']);
+    Route::get('/guidebooks', [GuidebookController::class, 'index']);
+    Route::get('/guidebooks/publish/{guidebook}', [GuidebookController::class, 'publish']);
+    Route::get('/guidebooks/add-to-favorite/{id}', [GuidebookController::class, 'favorite']);
 
-  // Places routes
-  Route::get('/guidebooks/places/{guidebook}', [PlacesController::class, 'index']);
-  Route::get('/guidebooks/place/{place}', [PlacesController::class, 'show']);
-  Route::post('/guidebooks/place', [PlacesController::class, 'store']);
-  Route::put('/guidebooks/place/{place}', [PlacesController::class, 'update']);
-  Route::delete('/guidebooks/place/{place}', [PlacesController::class, 'destroy']);
+    Route::get('/guidebooks/{id}', [GuidebookController::class, 'show']);
+    Route::post('/guidebook', [GuidebookController::class, 'store']);
+    Route::put('/{guidebook}/{guidebook}', [GuidebookController::class, 'update']);
+    Route::delete('/guidebooks/{guidebook}', [GuidebookController::class, 'destroy']);
+
+    // Places routes
+    Route::get('/places/{guidebook}', [PlacesController::class, 'index']);
+    Route::get('/place/{place}', [PlacesController::class, 'show']);
+    Route::post('/place', [PlacesController::class, 'store']);
+    Route::put('/place/{place}', [PlacesController::class, 'update']);
+    Route::delete('/place/{place}', [PlacesController::class, 'destroy']);
 });

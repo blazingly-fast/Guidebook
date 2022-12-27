@@ -16,7 +16,9 @@ class Guidebook extends Model
     'user_id', 'title', 'description', 'is_published'
   ];
 
-  protected static function booted()
+    public $timestamps = true;
+
+    protected static function booted()
   {
     static::addGlobalScope(new LoggedUserScope);
   }
@@ -30,4 +32,9 @@ class Guidebook extends Model
   {
     return $this->hasMany(Place::class);
   }
+
+    public function favorizers()
+    {
+    return $this->hasMany(User::class);
+    }
 }

@@ -18,7 +18,6 @@ class AuthController extends Controller
 
   public function login(LoginUserRequest $request)
   {
-
     $request->validated($request->all());
 
     if (!Auth::attempt($request->only(['email', 'password']))) {
@@ -26,7 +25,6 @@ class AuthController extends Controller
     }
 
     $user = User::where('email', $request->email)->first();
-
     return $this->success([
       'user' => $user,
       'token' => $user->createToken('Api Token of ' . $user->name)->plainTextToken

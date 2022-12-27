@@ -38,6 +38,8 @@ class User extends Authenticatable implements MustVerifyEmail
 		'remember_token',
 	];
 
+    public $timestamps = true;
+
 	/**
 	 * The attributes that should be cast.
 	 *
@@ -51,4 +53,10 @@ class User extends Authenticatable implements MustVerifyEmail
 	{
 		return $this->hasMany(Guidebook::class);
 	}
+
+    public function favorite()
+    {
+        return $this->hasMany(Guidebook::class);
+    }
+
 }

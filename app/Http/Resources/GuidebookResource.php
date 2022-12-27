@@ -19,6 +19,7 @@ class GuidebookResource extends JsonResource
       'attributes' => [
         'title' => $this->title,
         'description' => $this->description,
+        'is_published' => $this->is_published,
       ],
       'relationships' => [
         'uuid' => (string)$this->user->id,
